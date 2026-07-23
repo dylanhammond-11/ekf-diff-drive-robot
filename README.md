@@ -8,9 +8,9 @@ state estimation.
 Simulates a differential drive robot navigating between waypoints, fusing noisy
 GPS, IMU, and wheel encoder measurements through an EKF to estimate pose (x, y, theta)
 in real time, and comparing the estimate against ground truth.
+EKF is designed from scratch (see `ekf_core.py`): prediction step, measurement update, and Jacobians
 
 ## Architecture
-
 - **sim_node** — simulates true robot state given velocity commands (diff-drive kinematics)
 - **gps_node / imu_node / encoder_node** — simulate noisy sensor measurements from true state
 - **ekf_node** — fuses encoder/IMU (prediction) and GPS (correction) into a pose estimate
