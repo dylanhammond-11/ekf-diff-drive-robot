@@ -1,0 +1,13 @@
+controller_node:
+  ros__parameters:
+    kv: 1.0
+    kw: 1.0
+    control_rate_hz: 10.0
+    waypoints_flat: [0.0, 2.0, 2.0, 2.0, 2.0, 0.0, 0.0, 0.0]
+
+ekf_node:
+  ros__parameters:
+    q_diag: [0.001, 0.001, 0.001]
+    r_diag: [0.1, 0.1]
+    p0_diag: [0.05, 0.05, 0.05]
+    predict_rate_hz: 10.0
