@@ -18,11 +18,11 @@ EKF is designed from scratch (see `ekf_core.py`): prediction step, measurement u
 
 ## Running it
 
-\`\`\`bash
+```bash
 colcon build --symlink-install
 source install/setup.bash
 ros2 launch ekf_robot_pack ekf_sim_launch.py
-\`\`\`
+```
 
 Visualize live in RViz (Fixed Frame: `odom`, add an Odometry display on `/ekf/estimate`
 and `/true_pose`).
@@ -34,4 +34,5 @@ Tunable parameters (waypoints, controller gains, EKF noise covariances) live in
 
 ## Status
 
-In progress: Simulation currently active. Still working to refine EKF and simulated sensors. 
+Complete: full pipeline (simulated sensors → EKF fusion → waypoint controller →
+RViz visualization) working end-to-end in simulation. Still working to refine and add new features.
