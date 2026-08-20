@@ -34,5 +34,4 @@ Tunable parameters (waypoints, controller gains, EKF noise covariances) live in
 
 ## Status
 
-Complete: full pipeline (simulated sensors → EKF fusion → waypoint controller →
-RViz visualization) working end-to-end in simulation. Still working to refine and add new features.
+Complete: full pipeline (simulated sensors, EKF fusion, waypoint controller) working end-to-end in simulation. Still working to refine and add new features.
