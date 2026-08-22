@@ -18,6 +18,9 @@ import numpy as np
 class ENCNode(Node):
     def __init__(self):
         super().__init__('enc_node')
+        # Set sensor noise as parameter
+        self.declare_parameter('enc_noise_std', 0.05)
+        self.enc_noise_std = self.get_parameter('enc_noise_std').value
 
         # Publish IMU Data
         self.enc_pub = self.create_publisher(TwistStamped, '/enc_data', 10)
@@ -29,7 +32,7 @@ class ENCNode(Node):
         # Pull out angluar velocity
         v_true = msg.twist.twist.linear.x
         # Add gaussian noise
-        v_imu = v_true + np.random.normal(0,0.1)
+        v_imu = v_true + np.random.normal(0,self.enc_noise_std)
 
         # Encoder message
         msg_enc = TwistStamped()

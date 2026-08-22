@@ -15,6 +15,7 @@ EKF is designed from scratch (see `ekf_core.py`): prediction step, measurement u
 - **gps_node / imu_node / encoder_node** — simulate noisy sensor measurements from true state
 - **ekf_node** — fuses encoder/IMU (prediction) and GPS (correction) into a pose estimate
 - **controller_node** — drives the robot through a sequence of waypoints using the EKF estimate
+- **plot_node** — live matplotlib visualization of true vs. estimated trajectory, with covariance ellipse
 
 ## Running it
 
@@ -24,8 +25,12 @@ source install/setup.bash
 ros2 launch ekf_robot_pack ekf_sim_launch.py
 ```
 
-Visualize live in RViz (Fixed Frame: `odom`, add an Odometry display on `/ekf/estimate`
-and `/true_pose`).
+To view the live trajectory plot, open a second terminal, source the workspace again, and run:
+
+```bash
+source install/setup.bash
+ros2 run ekf_robot_pack plot_node
+```
 
 ## Configuration
 
@@ -34,4 +39,4 @@ Tunable parameters (waypoints, controller gains, EKF noise covariances) live in
 
 ## Status
 
-Complete: full pipeline (simulated sensors, EKF fusion, waypoint controller) working end-to-end in simulation. Still working to refine and add new features.
+Complete: full pipeline (simulated sensors, EKF fusion, waypoint controller, live trajectory plotting) working end-to-end in simulation. Still working to refine and add new features.

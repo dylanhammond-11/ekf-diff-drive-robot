@@ -28,7 +28,7 @@ class EKFNode(Node):
         self.declare_parameter('q_diag', [1e-3, 1e-3, 1e-3])
         self.declare_parameter('r_diag', [0.1, 0.1])
         self.declare_parameter('p0_diag', [0.05, 0.05, 0.05])
-        self.declare_parameter('predict_rate_hz', 10.0)
+        self.declare_parameter('predict_rate_hz', 50.0)
 
         q = np.diag(self.get_parameter('q_diag').value)
         r = np.diag(self.get_parameter('r_diag').value)
@@ -103,9 +103,15 @@ class EKFNode(Node):
  
         # Diagonal covariance: Odometry's 6x6 covariance array (36 element array) (x, y, ... yaw)
         cov = [0.0] * 36
-        cov[0] = self.ekf.P[0, 0]   # x-x
-        cov[7] = self.ekf.P[1, 1]   # y-y
-        cov[35] = self.ekf.P[2, 2]  # yaw-yaw
+        cov[0]  = self.ekf.P[0, 0]   # x-x
+        cov[1]  = self.ekf.P[0, 1]   # x-y
+        cov[6]  = self.ekf.P[1, 0]   # y-x
+        cov[7]  = self.ekf.P[1, 1]   # y-y
+        cov[5]  = self.ekf.P[0, 2]   # x-yaw
+        cov[30] = self.ekf.P[2, 0]   # yaw-x
+        cov[11] = self.ekf.P[1, 2]   # y-yaw
+        cov[31] = self.ekf.P[2, 1]   # yaw-y
+        cov[35] = self.ekf.P[2, 2]   # yaw-yaw
         msg.pose.covariance = cov
  
         self.estimate_pub.publish(msg)

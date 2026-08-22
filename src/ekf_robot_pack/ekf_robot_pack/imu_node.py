@@ -17,6 +17,9 @@ class ImuNode(Node):
     def __init__(self):
         super().__init__('imu_node')
 
+        self.declare_parameter('imu_noise_std', 0.03)
+        self.imu_noise_std = self.get_parameter('imu_noise_std').value
+
         # Publish IMU Data
         self.imu_pub = self.create_publisher(Imu, '/imu', 10)
 
@@ -27,7 +30,7 @@ class ImuNode(Node):
         # Pull out angluar velocity
         w_true = msg.twist.twist.angular.z
         # Add gaussian noise
-        w_imu = w_true + np.random.normal(0,0.1)
+        w_imu = w_true + np.random.normal(0, self.imu_noise_std)
 
         # IMU message
         msg_imu = Imu()

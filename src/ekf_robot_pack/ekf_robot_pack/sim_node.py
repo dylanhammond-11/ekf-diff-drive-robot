@@ -23,8 +23,11 @@ class SimulatorNode(Node):
         # Init state and commands
         self.state_true = np.array([0,0,0])
         self.v_cmd = 0.0 # init to 0
-        self.w_cmd = 0.0 # init to 0
-        self.dt = 0.1
+        self.w_cmd = 0.0 # init to 0 (rad)
+
+        # Set dt as a parameter
+        self.declare_parameter('rate_hz', 50.0) # 50 Hz default
+        self.dt = 1/self.get_parameter('rate_hz').value
 
         # Publisher for the true robot pose
         self.state_pub = self.create_publisher(Odometry,'/true_pose',10)

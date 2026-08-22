@@ -19,12 +19,11 @@ class ControllerNode(Node):
         super().__init__('controller_node')
 
         # Waypoints as a flat parameter: [x0, y0, x1, y1, ...]
-        # ROS2 params don't support a list of [x,y] pairs directly, only
         default_waypoints = [0.0, 3.0, 2.0, 1.0, 4.0, 3.0, 4.0, 0.0]
         self.declare_parameter('waypoints_flat', default_waypoints)
         self.declare_parameter('kv', 1.0)
         self.declare_parameter('kw', 1.0)
-        self.declare_parameter('control_rate_hz', 10.0)
+        self.declare_parameter('rate_hz', 10.0)
 
         flat = self.get_parameter('waypoints_flat').value
         self.waypoints = np.array(flat).reshape(-1, 2)  # back to Nx2
@@ -45,8 +44,8 @@ class ControllerNode(Node):
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel', 10)
 
         # publish at the dt rate
-        control_period = 1.0 / self.get_parameter('control_rate_hz').value
-        self.control_timer = self.create_timer(control_period, self.control_cb)
+        self.control_period = 1.0 / self.get_parameter('rate_hz').value
+        self.control_timer = self.create_timer(self.control_period, self.control_cb)
 
         self.get_logger().info(
             f'Controller started with {len(self.waypoints)} waypoints')
@@ -89,22 +88,61 @@ class ControllerNode(Node):
         dtheta = theta_des - state[2]
         dtheta_wrap = (dtheta + np.pi) % (2 * np.pi) - np.pi
 
-        if abs(dtheta_wrap) > np.pi / 12:
+        # HYSTERESIS FIX
+        # Initialize hysteresis tracking flag if it doesn't exist
+        if not hasattr(self, 'is_rotating'):
+            self.is_rotating = False
+
+        # Thresholds: Stop driving if error > 20 deg; keep rotating until < 5 deg
+        if abs(dtheta_wrap) > np.radians(20.0):
+            self.is_rotating = True
+        elif abs(dtheta_wrap) < np.radians(5.0):
+            self.is_rotating = False
+
+        if self.is_rotating:
             v = 0.0
             w = self.kw * dtheta_wrap
         else:
             v = self.kv * distance
             w = self.kw * dtheta_wrap
 
-        v_cmd = np.clip(v, 0, 2.0)
-        w_cmd = np.clip(w, -1.5, 1.5)
+        v_cmd_target = np.clip(v, 0.0, 1.5)
+        w_cmd_target = np.clip(w, -1.5, 1.5)
 
-        if distance < 0.1 and waypt_idx < num_of_waypoints - 1:
+    
+        # Smooth out sudden velocity jumps 
+        # Essentially an incremental controller
+
+        max_accel = 2.0  # m/s^2 (Limit on max accel)
+        max_alpha = 2.5 # rad/s^2
+        max_v_step = max_accel * self.control_period
+        max_w_step = max_alpha * self.control_period  
+
+        if not hasattr(self, 'prev_v'):
+            self.prev_v = 0.0
+        
+        dv = np.clip(v_cmd_target - self.prev_v, -max_v_step, max_v_step)
+        v_cmd = self.prev_v + dv
+        self.prev_v = v_cmd
+
+        if not hasattr(self, 'prev_w'):
+            self.prev_w = 0.0
+    
+        dw = np.clip(w_cmd_target - self.prev_w, -max_w_step, max_w_step)
+        w_cmd = self.prev_w + dw
+        self.prev_w = w_cmd
+
+        # WAYPOINT ADVANCEMENT
+        if distance < 0.08 and waypt_idx < num_of_waypoints - 1:
             waypt_idx += 1
+            self.is_rotating = True  # Immediately pivot for the next point
 
-        if waypt_idx == num_of_waypoints - 1 and distance < 0.1:
-            v_cmd = 0
-            w_cmd = 0
+        elif waypt_idx == num_of_waypoints - 1 and distance < 0.08:
+            v_cmd = 0.0
+            w_cmd = 0.0
+            self.prev_v = 0.0
+            self.prev_w = 0.0
+            
 
         return v_cmd, w_cmd, waypt_idx
 

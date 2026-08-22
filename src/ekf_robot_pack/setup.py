@@ -34,6 +34,7 @@ setup(
         'imu_node = ekf_robot_pack.imu_node:main',
         'encoder_node = ekf_robot_pack.encoder_node:main',
         'controller_node = ekf_robot_pack.controller_node:main',
+        'plot_node = ekf_robot_pack.plot_node:main',
         ],
     },
 )

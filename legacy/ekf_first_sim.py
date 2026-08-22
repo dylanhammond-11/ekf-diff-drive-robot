@@ -207,14 +207,16 @@ def main():
     
     # Plot
 
+    ## Plot State Comparison (EKF estimate, True, Dead Reckoning State)
     fig, ax = plt.subplots()
     ax.plot(state_true_list[:,0], state_true_list[:,1], label='True State')
     ax.plot(state_dead_reck_list[:,0], state_dead_reck_list[:,1], label='Dead Reckoning State')
     ax.plot(state_ekf_list[:,0], state_ekf_list[:,1], label='EKF State')
-
     ax.set_title('EKF Simulation')
     ax.legend()
 
+
+    ## Plot Control Inputs ##
     fig2, ax2 = plt.subplots()
     ax2.plot(timelist, v_cmd_list, label='v_cmd (Linear)')
     ax2.plot(timelist, w_cmd_list, label='w_cmd (Angular)')
@@ -222,6 +224,15 @@ def main():
     ax2.set_xlabel('Time (s)')
     #ax2.grid(True)
     ax2.legend()
+
+    ## Plot Covariance ##
+    fig3, ax3 = plt.subplots()
+    ax3.plot(timelist, P_x_list, label='P: X')
+    ax3.plot(timelist, P_y_list, label='P: Y')
+    ax3.plot(timelist, P_theta_list, label='P: Theta')
+    ax3.set_title('P Covariance Propagation')
+    ax3.set_xlabel('Time (s)')
+    ax3.legend()
 
     plt.show()
 

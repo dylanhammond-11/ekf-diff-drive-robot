@@ -27,7 +27,7 @@ class EKF:
         # Update State
         self.x = diff_drive_model(self.x, v, omega, dt)
         # Update Covariance
-        self.P = F @ self.P @ F.T + self.Q
+        self.P = F @ self.P @ F.T + self.Q * dt
 
         return self.x, self.P
     
