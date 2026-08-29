@@ -114,6 +114,7 @@ class PlotNode(Node):
             self.declare_parameter(
                 'waypoints_flat',
                [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 2.0, 1.0, 2.0]
+               #[0.0,0.0, 10.0,10.0, 20.0, 20.0]
             )
         if not self.has_parameter('waypoint_radius'):
             self.declare_parameter('waypoint_radius', 0.18)

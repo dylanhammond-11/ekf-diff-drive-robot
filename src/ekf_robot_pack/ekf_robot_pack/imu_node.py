@@ -3,6 +3,7 @@ Node for the simulated IMU sensor
 
 Subscribes to /true_pose, adds noise to the true angular velocity,
 publishes the noisy reading on /imu/data
+
 '''
 
 import rclpy
@@ -17,8 +18,13 @@ class ImuNode(Node):
     def __init__(self):
         super().__init__('imu_node')
 
-        self.declare_parameter('imu_noise_std', 0.03)
+        self.declare_parameter('imu_noise_std', 0.08)
         self.imu_noise_std = self.get_parameter('imu_noise_std').value
+
+        # Add IMU bias parameter
+        self.declare_parameter('imu_bias_std', 0.02)
+        bias_std = self.get_parameter('imu_bias_std').value
+        self.imu_bias = np.random.normal(0, bias_std)
 
         # Publish IMU Data
         self.imu_pub = self.create_publisher(Imu, '/imu', 10)
@@ -29,8 +35,9 @@ class ImuNode(Node):
     def true_pose_callback(self, msg):
         # Pull out angluar velocity
         w_true = msg.twist.twist.angular.z
-        # Add gaussian noise
-        w_imu = w_true + np.random.normal(0, self.imu_noise_std)
+
+        # Add gaussian noise and add bias
+        w_imu = w_true + self.imu_bias + np.random.normal(0, self.imu_noise_std)
 
         # IMU message
         msg_imu = Imu()
